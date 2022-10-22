@@ -68,8 +68,8 @@ const getRandomFloatNum = (min, max, float) => {
   return +(Math.random() * (max - min) + min).toFixed(float);
 };
 
-const getRandomArrayNum = (arra) =>
-  arra[getRandomNum(0, arra.length - 1)];
+const getRandomArrayElement = (array) =>
+  array[getRandomNum(0, array.length - 1)];
 
 const getRandomLat = () =>
   getRandomFloatNum (LOCATION.MIN_LAT, LOCATION.MAX_LAT, 5);
@@ -77,21 +77,21 @@ const getRandomLat = () =>
 const getRandomLng = () =>
   getRandomFloatNum (LOCATION.MIN_LNG, LOCATION.MAX_LNG, 5);
 
-const getAuthorAvatar = () =>
-  `img/avatars/user${String(getRandomNum(0, AVATAR_COUNT)).padStart(2, '0')}.png`;
+const createAuthor = () => ({
+  avatar: `img/avatars/user${String(getRandomNum(0, AVATAR_COUNT)).padStart(2, '0')}.png`, });
 
 const createOffer = () => ({
-  title: getRandomArrayNum(TITLE),
-  adress: `${getRandomLat()}, ${getRandomLng()}`,
+  title: getRandomArrayElement(TITLE),
+  address: `${getRandomLat()}, ${getRandomLng()}`,
   price: getRandomNum(PRICE.MIN, PRICE.MAX),
-  type: getRandomArrayNum(TYPES),
+  type: getRandomArrayElement(TYPES),
   rooms: getRandomNum(1, 5),
   guests: getRandomNum(1, 8),
-  checkin: getRandomArrayNum(CHECK_IN_OUT),
-  checkout: getRandomArrayNum(CHECK_IN_OUT),
+  checkin: getRandomArrayElement(CHECK_IN_OUT),
+  checkout: getRandomArrayElement(CHECK_IN_OUT),
   features: FEATURES.slice(0, getRandomNum(0, FEATURES.length)),
-  description: getRandomArrayNum(DESCRIPTIONS),
-  photo: Array.from({length: getRandomNum(1, PHOTOS.length)}, () => getRandomArrayNum(PHOTOS)),
+  description: getRandomArrayElement(DESCRIPTIONS),
+  photos: Array.from({length: getRandomNum(1, PHOTOS.length)}, () => getRandomArrayElement(PHOTOS)),
 });
 
 const getRandomLocation = () => ({
@@ -100,7 +100,7 @@ const getRandomLocation = () => ({
 });
 
 const createObjects = () => ({
-  author: getAuthorAvatar(),
+  author: createAuthor(),
   offer: createOffer(),
   location: getRandomLocation(),
 });
