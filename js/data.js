@@ -53,7 +53,7 @@ const getRandomLng = () =>
   getRandomFloatNum (LOCATION.MIN_LNG, LOCATION.MAX_LNG, 5);
 
 const createAuthor = () => ({
-  avatar: `img/avatars/user${String(getRandomNum(0, AVATAR_COUNT)).padStart(2, '0')}.png`, });
+  avatar: `img/avatars/user${String(getRandomNum(1, AVATAR_COUNT)).padStart(2, '0')}.png`, });
 
 const createOffer = () => ({
   title: getRandomArrayElement(TITLE),
