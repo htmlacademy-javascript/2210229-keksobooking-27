@@ -68,12 +68,9 @@ pristine.addValidator(numberOfGuests, compareValues, getErrorGuests);
 
 adFormElement.addEventListener('submit', (evt) => {
   evt.preventDefault();
-  const isTrue = pristine.validate();
-
-  if (isTrue) {
-    console.log('Ooke');
-  } else {
-    console.log(pristine.getErrors());
+  const isValid = pristine.validate();
+  if (!isValid) {
+    pristine.getErrors();
   }
 });
 
