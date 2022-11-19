@@ -12,10 +12,23 @@ const GUESTS = {
   3: ['3'],
 };
 
+const MIN_RENT_COST = {
+  bungalow: '0',
+  flat: '1000',
+  hotel: '3000',
+  house: '5000',
+  palace: '10000',
+};
+
+
 const adFormElement = document.querySelector('.ad-form');
 const fieldsetElements = adFormElement.querySelectorAll('fieldset');
 const numberOfRooms = adFormElement.querySelector('#room_number');
 const numberOfGuests = adFormElement.querySelector('#capacity');
+const fieldInputPrice = adFormElement.querySelector('#price');
+const typeOfRend = adFormElement.querySelector('#type');
+const timeInElement = adFormElement.querySelector('#timein');
+const timeOutElement = adFormElement.querySelector('#timeout');
 
 const pristine = new Pristine(
   adFormElement,
@@ -27,6 +40,13 @@ const pristine = new Pristine(
   true
 );
 
+
+const changeRentPrice = () => {
+  fieldInputPrice.placeholder = MIN_RENT_COST[typeOfRend.value];
+  fieldInputPrice.min = MIN_RENT_COST[typeOfRend.value];
+  return +fieldInputPrice.value >= +fieldInputPrice.min;
+};
+
 const compareValues = () =>
   ROOMS[numberOfRooms.value].includes(numberOfGuests.value);
 
@@ -35,6 +55,9 @@ const getErrorRooms = () =>
 
 const getErrorGuests = () =>
   `Указанное количество комнат вмещает ${ROOMS[numberOfRooms.value]} человек`;
+
+const getErrorPrice = () =>
+  `Минимальная сумма составляет ${fieldInputPrice.min} руб.`;
 
 const checkRoomsChanges = () => {
   pristine.validate(numberOfGuests);
@@ -46,8 +69,24 @@ const checkGuestsChanges = () => {
   pristine.validate(numberOfRooms);
 };
 
+const checkPriceChanges = () => {
+  pristine.validate(fieldInputPrice);
+};
+
+
 numberOfRooms.addEventListener('change', checkRoomsChanges);
 numberOfGuests.addEventListener('change', checkGuestsChanges);
+timeInElement.addEventListener('change', () => {
+  timeOutElement.value = timeInElement.value;
+});
+timeOutElement.addEventListener('change', () => {
+  timeInElement.value = timeOutElement.value;
+});
+typeOfRend.addEventListener('change', () => {
+  changeRentPrice();
+  checkPriceChanges();
+});
+
 
 const turnOffForm = () => {
   adFormElement.classList.add('ad-form--disabled');
@@ -65,10 +104,12 @@ const turnOnForm = () => {
 
 pristine.addValidator(numberOfRooms, compareValues, getErrorRooms);
 pristine.addValidator(numberOfGuests, compareValues, getErrorGuests);
+pristine.addValidator(fieldInputPrice, changeRentPrice, getErrorPrice);
 
 adFormElement.addEventListener('submit', (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
+
   if (!isValid) {
     pristine.getErrors();
   }
