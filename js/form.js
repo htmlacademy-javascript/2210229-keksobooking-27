@@ -1,3 +1,5 @@
+import { catchMainPinCoords } from './map.js';
+
 const ROOMS = {
   1: ['1'],
   2: ['1', '2'],
@@ -20,6 +22,7 @@ const MIN_RENT_COST = {
   palace: 10000,
 };
 
+//----------------------------------------querySelectors----------------------------------------
 
 const adFormElement = document.querySelector('.ad-form');
 const fieldsetElements = adFormElement.querySelectorAll('fieldset');
@@ -29,6 +32,10 @@ const fieldInputPrice = adFormElement.querySelector('#price');
 const typeOfRend = adFormElement.querySelector('#type');
 const timeInElement = adFormElement.querySelector('#timein');
 const timeOutElement = adFormElement.querySelector('#timeout');
+const addressElement = adFormElement.querySelector('#address');
+const sliderElement = adFormElement.querySelector('.ad-form__slider');
+
+//----------------------------------------Pristine----------------------------------------------
 
 const pristine = new Pristine(
   adFormElement,
@@ -40,15 +47,37 @@ const pristine = new Pristine(
   true
 );
 
+//----------------------------------------noUiSlider--------------------------------------------
 
-const changeRentPrice = () => {
-  fieldInputPrice.placeholder = MIN_RENT_COST[typeOfRend.value];
-  fieldInputPrice.min = MIN_RENT_COST[typeOfRend.value];
-  return +fieldInputPrice.value >= +fieldInputPrice.min;
+noUiSlider.create(sliderElement, {
+  range: {
+    min: 0,
+    max: 100000
+  },
+  connect: 'lower',
+  start: 0,
+  step: 1,
+  format: {
+    to: (value) => value.toFixed(),
+    from: (value) => +value
+  }
+});
+
+sliderElement.noUiSlider.on('update', () => {
+  fieldInputPrice.value = sliderElement.noUiSlider.get();
+  pristine.validate(fieldInputPrice);
+});
+
+//----------------------------------------Call back for coordinates-----------------------------
+
+const adress = (coordinates) => {
+  addressElement.value = `${coordinates.lat.toFixed(5)} ${coordinates.lng.toFixed(5)}`;
+  pristine.validate(addressElement);
 };
+catchMainPinCoords(adress);
 
-const compareValues = () =>
-  ROOMS[numberOfRooms.value].includes(numberOfGuests.value);
+
+//----------------------------------------Errors Messages---------------------------------------
 
 const getErrorRooms = () =>
   `Для указанного количества гостей нужно ${GUESTS[numberOfGuests.value]} комнат`;
@@ -58,6 +87,12 @@ const getErrorGuests = () =>
 
 const getErrorPrice = () =>
   `Минимальная сумма составляет ${fieldInputPrice.min} руб.`;
+
+
+//--------------------------------Functions for pristive validation------------------------------
+
+const compareValues = () =>
+  ROOMS[numberOfRooms.value].includes(numberOfGuests.value);
 
 const checkRoomsChanges = () => {
   pristine.validate(numberOfGuests);
@@ -69,10 +104,13 @@ const checkGuestsChanges = () => {
   pristine.validate(numberOfRooms);
 };
 
-const checkPriceChanges = () => {
-  pristine.validate(fieldInputPrice);
+const changeRentPrice = () => {
+  fieldInputPrice.placeholder = MIN_RENT_COST[typeOfRend.value];
+  fieldInputPrice.min = MIN_RENT_COST[typeOfRend.value];
+  return +fieldInputPrice.value >= +fieldInputPrice.min;
 };
 
+//----------------------------------------Event Listeners----------------------------------------
 
 numberOfRooms.addEventListener('change', checkRoomsChanges);
 numberOfGuests.addEventListener('change', checkGuestsChanges);
@@ -84,23 +122,26 @@ timeOutElement.addEventListener('change', () => {
 });
 typeOfRend.addEventListener('change', () => {
   changeRentPrice();
-  checkPriceChanges();
+  pristine.validate(fieldInputPrice);
 });
 
+//----------------------------------------Turn form on\off----------------------------------------
 
-const turnOffForm = () => {
+const turnFormOff = () => {
   adFormElement.classList.add('ad-form--disabled');
   fieldsetElements.forEach((form) => {
     form.disabled = true;
   });
 };
 
-const turnOnForm = () => {
+const turnFormOn = () => {
   adFormElement.classList.remove('ad-form--disabled');
   fieldsetElements.forEach((form) => {
     form.disabled = false;
   });
 };
+
+//----------------------------------------add validators------------------------------------------
 
 pristine.addValidator(numberOfRooms, compareValues, getErrorRooms);
 pristine.addValidator(numberOfGuests, compareValues, getErrorGuests);
@@ -115,4 +156,4 @@ adFormElement.addEventListener('submit', (evt) => {
   }
 });
 
-export {turnOffForm, turnOnForm};
+export {turnFormOff, turnFormOn};

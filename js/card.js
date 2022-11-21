@@ -55,7 +55,7 @@ const renderPhotos = (offerElements, title, photos) => {
   });
 };
 
-export const createrCardElement = (node, { author, offer }) => {
+export const createrCardElement = ({ author, offer }) => {
   const offerElements = CARD_TEMPLATE.cloneNode(true);
   offerElements.querySelector('.popup__title').textContent = offer.title;
   offerElements.querySelector('.popup__text--address').textContent = offer.address;
@@ -69,5 +69,6 @@ export const createrCardElement = (node, { author, offer }) => {
   displayDescriptions(offerElements, offer.description);
   removeFeatures(offerElements, offer.features);
   renderPhotos(offerElements, offer.title, offer.photos);
-  node.append(offerElements);
+
+  return offerElements;
 };
