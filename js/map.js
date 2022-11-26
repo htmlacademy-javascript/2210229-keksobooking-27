@@ -1,24 +1,29 @@
 import {createrCardElement} from './card.js';
 
+const START_COORDINATES = {
+  lat: 35.66,
+  lng: 139.77,
+};
+
 const map = L.map('map-canvas');
 const markerGroup = L.layerGroup().addTo(map);
 
 const mainPinIcon = L.icon({
-  iconUrl: '../img/main-pin.svg',
+  iconUrl: '/img/main-pin.svg',
   iconSize: [52, 52],
   iconAnchor: [26, 52],
 });
 
 const adPinIcon = L.icon({
-  iconUrl: '../img/pin.svg',
+  iconUrl: '/img/pin.svg',
   iconSize: [40, 40],
   iconAnchor: [20, 40],
 });
 
 const mainPinMarker = L.marker(
   {
-    lat: 35.66,
-    lng: 139.77,
+    lat: START_COORDINATES.lat,
+    lng: START_COORDINATES.lng,
   },
   {
     draggable: true,
@@ -28,8 +33,8 @@ const mainPinMarker = L.marker(
 
 const renderMap = () => {
   map.setView({
-    lat: 35.66,
-    lng: 139.77,
+    lat: START_COORDINATES.lat,
+    lng: START_COORDINATES.lng,
   }, 10);
 
   L.tileLayer(
@@ -64,5 +69,9 @@ const catchMainPinCoords = (cb) => {
   mainPinMarker.on('moveend', (evt) => cb(evt.target.getLatLng()));
 };
 
+const resetCoordinates = () => {
+  mainPinMarker.setLatLng(START_COORDINATES);
+  map.closePopup();
+};
 
-export {renderMap, catchMainPinCoords, setOnMapLoad, createOfferMarkers};
+export {renderMap, catchMainPinCoords, setOnMapLoad, createOfferMarkers, resetCoordinates};
