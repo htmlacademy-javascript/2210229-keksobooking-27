@@ -1,5 +1,8 @@
 const CARD_TEMPLATE = document.querySelector('#card').content.querySelector('.popup');
 
+const PHOTO_WIDTH = 45;
+const PHOTO_HEIGHT = 40;
+
 const TYPES_OF_HOUSING = {
   flat: 'Квартира',
   bungalow: 'Бунгало',
@@ -40,8 +43,8 @@ const createPhoto = (title, photo) => {
   photoTemplateElement.classList.add('popup__photo');
   photoTemplateElement.src = photo;
   photoTemplateElement.alt = title;
-  photoTemplateElement.width = '45';
-  photoTemplateElement.height = '40';
+  photoTemplateElement.width = PHOTO_WIDTH;
+  photoTemplateElement.height = PHOTO_HEIGHT;
 
   return photoTemplateElement;
 };

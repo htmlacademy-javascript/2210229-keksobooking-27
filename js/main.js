@@ -1,16 +1,24 @@
-import {rentObjects} from './data.js';
-import {turnFormOff, turnFormOn} from './form.js';
-import {turnOffFilters, turnOnFilters} from './filter.js';
-import {renderMap, setOnMapLoad, createOfferMarkers} from './map.js';
+import { turnFormOff, turnFormOn, setUserFormSubmit } from './form.js';
+import { turnOffFilters, turnOnFilters } from './filter.js';
+import { renderMap, setOnMapLoad, createOfferMarkers } from './map.js';
+import { getData } from './api.js';
+import { showAlert } from './util.js';
+import { showErrorMessage } from './modal-form.js';
 
-const OBJECT_DATA = rentObjects();
-
+const RENTAL_OBJECTS = 10;
 
 turnOffFilters();
 
 setOnMapLoad(() => {
-  createOfferMarkers(OBJECT_DATA);
   turnFormOn();
+  getData((data) => {
+    createOfferMarkers(data.slice(0, RENTAL_OBJECTS));
+  },
+  (error) => {
+    showAlert(error.message);
+  });
 });
 
 renderMap();
+setUserFormSubmit(showErrorMessage);
+

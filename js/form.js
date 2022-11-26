@@ -1,4 +1,7 @@
-import { catchMainPinCoords } from './map.js';
+import { catchMainPinCoords, resetCoordinates } from './map.js';
+import { sentData } from './api.js';
+import { showAlert } from './util.js';
+import { showSuccessMessage } from './modal-form.js';
 
 const ROOMS = {
   1: ['1'],
@@ -25,15 +28,17 @@ const MIN_RENT_COST = {
 //----------------------------------------querySelectors----------------------------------------
 
 const adFormElement = document.querySelector('.ad-form');
-const fieldsetElements = adFormElement.querySelectorAll('fieldset');
-const numberOfRooms = adFormElement.querySelector('#room_number');
-const numberOfGuests = adFormElement.querySelector('#capacity');
-const fieldInputPrice = adFormElement.querySelector('#price');
-const typeOfRend = adFormElement.querySelector('#type');
+const fieldsetElement = adFormElement.querySelectorAll('fieldset');
+const roomNumberElement = adFormElement.querySelector('#room_number');
+const capacityElement = adFormElement.querySelector('#capacity');
+const priceElement = adFormElement.querySelector('#price');
+const typeElement = adFormElement.querySelector('#type');
 const timeInElement = adFormElement.querySelector('#timein');
 const timeOutElement = adFormElement.querySelector('#timeout');
 const addressElement = adFormElement.querySelector('#address');
 const sliderElement = adFormElement.querySelector('.ad-form__slider');
+const submitButtonElement = adFormElement.querySelector('.ad-form__submit');
+const resetButtonElement = adFormElement.querySelector('.ad-form__reset');
 
 //----------------------------------------Pristine----------------------------------------------
 
@@ -64,9 +69,14 @@ noUiSlider.create(sliderElement, {
 });
 
 sliderElement.noUiSlider.on('update', () => {
-  fieldInputPrice.value = sliderElement.noUiSlider.get();
-  pristine.validate(fieldInputPrice);
+  priceElement.value = sliderElement.noUiSlider.get();
+  pristine.validate(priceElement);
 });
+
+const setValueFromInputToSlider = () => {
+  sliderElement.noUiSlider.set(priceElement.value);
+  pristine.validate(priceElement);
+};
 
 //----------------------------------------Call back for coordinates-----------------------------
 
@@ -76,84 +86,117 @@ const adress = (coordinates) => {
 };
 catchMainPinCoords(adress);
 
-
 //----------------------------------------Errors Messages---------------------------------------
 
 const getErrorRooms = () =>
-  `Для указанного количества гостей нужно ${GUESTS[numberOfGuests.value]} комнат`;
+  `Для указанного количества гостей нужно ${GUESTS[capacityElement.value]} комнат`;
 
 const getErrorGuests = () =>
-  `Указанное количество комнат вмещает ${ROOMS[numberOfRooms.value]} человек`;
+  `Указанное количество комнат вмещает ${ROOMS[roomNumberElement.value]} человек`;
 
 const getErrorPrice = () =>
-  `Минимальная сумма составляет ${fieldInputPrice.min} руб.`;
-
+  `Минимальная сумма составляет ${priceElement.min} руб.`;
 
 //--------------------------------Functions for pristive validation------------------------------
 
 const compareValues = () =>
-  ROOMS[numberOfRooms.value].includes(numberOfGuests.value);
+  ROOMS[roomNumberElement.value].includes(capacityElement.value);
 
 const checkRoomsChanges = () => {
-  pristine.validate(numberOfGuests);
-  pristine.validate(numberOfRooms);
+  pristine.validate(capacityElement);
+  pristine.validate(roomNumberElement);
 };
 
 const checkGuestsChanges = () => {
-  pristine.validate(numberOfGuests);
-  pristine.validate(numberOfRooms);
+  pristine.validate(capacityElement);
+  pristine.validate(roomNumberElement);
 };
 
 const changeRentPrice = () => {
-  fieldInputPrice.placeholder = MIN_RENT_COST[typeOfRend.value];
-  fieldInputPrice.min = MIN_RENT_COST[typeOfRend.value];
-  return +fieldInputPrice.value >= +fieldInputPrice.min;
+  priceElement.placeholder = MIN_RENT_COST[typeElement.value];
+  priceElement.min = MIN_RENT_COST[typeElement.value];
+  return +priceElement.value >= +priceElement.min;
 };
 
 //----------------------------------------Event Listeners----------------------------------------
 
-numberOfRooms.addEventListener('change', checkRoomsChanges);
-numberOfGuests.addEventListener('change', checkGuestsChanges);
+roomNumberElement.addEventListener('change', checkRoomsChanges);
+capacityElement.addEventListener('change', checkGuestsChanges);
 timeInElement.addEventListener('change', () => {
   timeOutElement.value = timeInElement.value;
 });
 timeOutElement.addEventListener('change', () => {
   timeInElement.value = timeOutElement.value;
 });
-typeOfRend.addEventListener('change', () => {
+typeElement.addEventListener('change', () => {
   changeRentPrice();
-  pristine.validate(fieldInputPrice);
+  pristine.validate(priceElement);
 });
+priceElement.addEventListener('change', setValueFromInputToSlider);
+resetButtonElement.addEventListener('click', resetForm);
 
 //----------------------------------------Turn form on\off----------------------------------------
 
 const turnFormOff = () => {
   adFormElement.classList.add('ad-form--disabled');
-  fieldsetElements.forEach((form) => {
+  fieldsetElement.forEach((form) => {
     form.disabled = true;
   });
 };
 
 const turnFormOn = () => {
   adFormElement.classList.remove('ad-form--disabled');
-  fieldsetElements.forEach((form) => {
+  fieldsetElement.forEach((form) => {
     form.disabled = false;
   });
 };
 
 //----------------------------------------add validators------------------------------------------
 
-pristine.addValidator(numberOfRooms, compareValues, getErrorRooms);
-pristine.addValidator(numberOfGuests, compareValues, getErrorGuests);
-pristine.addValidator(fieldInputPrice, changeRentPrice, getErrorPrice);
+pristine.addValidator(roomNumberElement, compareValues, getErrorRooms);
+pristine.addValidator(capacityElement, compareValues, getErrorGuests);
+pristine.addValidator(priceElement, changeRentPrice, getErrorPrice);
 
-adFormElement.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  const isValid = pristine.validate();
+//----------------------------------------modal functions------------------------------------------
 
-  if (!isValid) {
-    pristine.getErrors();
-  }
-});
+function blockSubmitButton() {
+  submitButtonElement.disabled = true;
+  submitButtonElement.textContent = 'Идёт отправка';
+}
 
-export {turnFormOff, turnFormOn};
+function unblockSubmitButton() {
+  submitButtonElement.disabled = false;
+  submitButtonElement.textContent = 'Опубликовать';
+}
+
+function resetForm() {
+  adFormElement.reset();
+  pristine.reset();
+  resetCoordinates();
+  sliderElement.noUiSlider.set('');
+}
+
+const setUserFormSubmit = () => {
+  adFormElement.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const isValid = pristine.validate();
+
+    if (isValid) {
+      blockSubmitButton();
+      sentData(
+        () => {
+          showSuccessMessage();
+          unblockSubmitButton();
+          console.log('hi hi');
+        },
+        () => {
+          showAlert('Не удалось отправить форму. Пожалуйста, повторите попытку');
+          unblockSubmitButton();
+        },
+        new FormData(evt.target),
+      );
+    }
+  });
+};
+
+export { turnFormOff, turnFormOn, setUserFormSubmit, resetForm };
