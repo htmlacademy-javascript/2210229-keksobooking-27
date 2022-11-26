@@ -187,7 +187,6 @@ const setUserFormSubmit = () => {
         () => {
           showSuccessMessage();
           unblockSubmitButton();
-          console.log('hi hi');
         },
         () => {
           showAlert('Не удалось отправить форму. Пожалуйста, повторите попытку');

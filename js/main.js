@@ -7,6 +7,7 @@ import { showErrorMessage } from './modal-form.js';
 
 const RENTAL_OBJECTS = 10;
 
+turnFormOff();
 turnOffFilters();
 
 setOnMapLoad(() => {
@@ -21,4 +22,4 @@ setOnMapLoad(() => {
 
 renderMap();
 setUserFormSubmit(showErrorMessage);
-
+turnOnFilters();
