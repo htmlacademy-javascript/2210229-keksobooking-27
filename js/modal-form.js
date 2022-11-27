@@ -21,6 +21,7 @@ function showSuccessMessage() {
   document.body.append(showSuccessElement);
   document.addEventListener('keydown', setEscKey);
   document.addEventListener('click' , hideSuccessMessage);
+  document.body.style.overflow = 'hidden';
 }
 
 function hideSuccessMessage() {
@@ -28,6 +29,7 @@ function hideSuccessMessage() {
   document.body.lastChild.remove();
   document.removeEventListener('click', hideSuccessMessage);
   document.removeEventListener('keydown', setEscKey);
+  document.body.style.overflow = 'auto';
 }
 
 function showErrorMessage() {
@@ -37,12 +39,14 @@ function showErrorMessage() {
   document.addEventListener('keydown', setEscKey);
   document.addEventListener('click', hideErrorMessage);
   errorButtonElement.addEventListener('click', setErrorBnt);
+  document.body.style.overflow = 'hidden';
 }
 
 function hideErrorMessage() {
   document.body.lastChild.remove();
   document.removeEventListener('keydown', setEscKey);
   document.removeEventListener('click', hideErrorMessage);
+  document.body.style.overflow = 'auto';
 }
 
 function setErrorBnt() {
