@@ -1,4 +1,4 @@
-const getData = (onSuccess, ifError) => {
+const getData = (onSuccess, errorHandler) => {
   fetch ('https://27.javascript.pages.academy/keksobooking/data')
     .then((Response) => {
       if (Response.ok) {
@@ -9,10 +9,10 @@ const getData = (onSuccess, ifError) => {
     .then((data) => {
       onSuccess(data);
     })
-    .catch((error) => ifError(error));
+    .catch((error) => errorHandler(error));
 };
 
-const sentData = (onSuccess, ifError, body) => {
+const sentData = (onSuccess, errorHandler, body) => {
   fetch ('https://27.javascript.pages.academy/keksobooking',
     {
       method: 'POST',
@@ -23,11 +23,11 @@ const sentData = (onSuccess, ifError, body) => {
       if(Response.ok) {
         onSuccess();
       } else {
-        ifError('Не удалось отправить форму. Пожалуйста, повторите попытку');
+        errorHandler('Не удалось отправить форму. Пожалуйста, повторите попытку');
       }
     })
     .catch(() => {
-      ifError('Не удалось отправить форму. Пожалуйста, повторите попытку');
+      errorHandler('Не удалось отправить форму. Пожалуйста, повторите попытку');
     });
 };
 
